@@ -57,6 +57,8 @@ services:
     volumes:
       - ${BACKUP_FOLDER}/adguard-data/work:/opt/adguardhome/work
       - ${BACKUP_FOLDER}/adguard-data/conf:/opt/adguardhome/conf
+    depends_on:
+      - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.adguard.loadbalancer.server.port=3000"
@@ -85,6 +87,8 @@ services:
       - "traefik.http.routers.vaultwarden.rule=Host(`vw.${DOMAIN}`)"
       - "traefik.http.routers.vaultwarden.entrypoints=websecure"
       - "traefik.http.routers.vaultwarden.tls.certresolver=letsencryptresolver"
+    depends_on:
+      - proxy
     environment:
       - ADMIN_TOKEN=${VW_ADMIN_TOKEN}
       - WEBSOCKET_ENABLED=true
@@ -105,6 +109,8 @@ services:
       - ${BACKUP_FOLDER}/gitea-data:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - proxy
     labels:
       - "traefik.enable=true"
       # Web
@@ -125,6 +131,8 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: "cloudflareTunnel"
     restart: unless-stopped
+    depends_on:
+      - proxy
     command:
       - "tunnel"
       - "--no-autoupdate"
