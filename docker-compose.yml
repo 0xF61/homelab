@@ -139,7 +139,3 @@ services:
       - "run"
       - "--token"
       - "${CF_TUNNEL_API_TOKEN}"
-
-networks:
-  homelab_default:
-    external: true
