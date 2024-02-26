@@ -78,8 +78,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - WATCHTOWER_NOTIFICATION_REPORT="true"
-      - WATCHTOWER_NOTIFICATION_URL="${WATCHTOWER_NOTIFICATION_URL}"
+      - WATCHTOWER_NOTIFICATION_REPORT=true
+      - WATCHTOWER_NOTIFICATION_URL=${WATCHTOWER_NOTIFICATION_URL}
 
   vaultwarden:
     image: vaultwarden/server:latest
