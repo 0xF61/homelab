@@ -4,6 +4,7 @@ services:
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
+    hostname: vpn
     cap_add:
       - NET_ADMIN
     environment:
@@ -30,6 +31,7 @@ services:
 
   qbittorrent:
     container_name: qbittorrent
+    hostname: qb
     depends_on:
       - gluetun
     network_mode: container:gluetun
