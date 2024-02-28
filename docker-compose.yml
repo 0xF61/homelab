@@ -145,10 +145,28 @@ services:
       - "${BACKUP_FOLDER}/freshrss/extensions:/var/www/FreshRSS/extensions"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.rss.loadbalancer.server.port=80"
+      - "traefik.http.services.freshrss.loadbalancer.server.port=80"
       - "traefik.http.routers.freshrss.rule=Host(`rss.${DOMAIN}`)"
       - "traefik.http.routers.freshrss.entrypoints=websecure"
       - "traefik.http.routers.freshrss.tls.certresolver=letsencryptresolver"
+
+  shiori:
+    image: nicholaswilde/shiori:latest
+    container_name: shiori-default
+    restart: unless-stopped
+    environment:
+      - TZ=America/Los_Angeles
+      - PUID=1000
+      - PGID=1000
+      - SHIORI_DIR=/data
+    volumes:
+      - ${BACKUP_FOLDER}/shiori=/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.shiori.loadbalancer.server.port=8080"
+      - "traefik.http.routers.shiori.rule=Host(`shi.${DOMAIN}`)"
+      - "traefik.http.routers.shiori.entrypoints=websecure"
+      - "traefik.http.routers.shiori.tls.certresolver=letsencryptresolver"
 
   cftunnel:
     image: cloudflare/cloudflared:latest
