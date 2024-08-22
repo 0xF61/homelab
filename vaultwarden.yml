@@ -15,7 +15,7 @@ services:
       - "traefik.http.routers.vaultwarden.tls.domains[0].sans=*.${DOMAIN}"
       - "traefik.http.routers.vaultwarden.tls.certresolver=letsencryptresolver"
       # Get Real IP
-      - "traefik.http.routers.vaultwarden.middlewares=traefik-real-ip,crowdsec,fail2ban"
+      - "traefik.http.routers.vaultwarden.middlewares=traefik-real-ip,fail2ban"
     environment:
       - ADMIN_TOKEN=${VW_ADMIN_TOKEN}
       - WEBSOCKET_ENABLED=true

@@ -23,7 +23,7 @@ services:
       - traefik.http.routers.n8n.tls.domains[0].sans=*.${DOMAIN}
       - traefik.http.routers.n8n.middlewares=n8n@docker
       # Attach middlewares
-      - traefik.http.routers.n8n.middlewares=traefik-real-ip,crowdsec,fail2ban
+      - traefik.http.routers.n8n.middlewares=traefik-real-ip,fail2ban
     environment:
       - N8N_HOST=n8.${DOMAIN}
       - N8N_PORT=5678

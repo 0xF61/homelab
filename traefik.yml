@@ -38,9 +38,6 @@ services:
       ## traefik-real-ip
       - --experimental.plugins.traefik-real-ip.modulename=github.com/jramsgz/traefik-real-ip
       - --experimental.plugins.traefik-real-ip.version=v1.0.6
-      ## crowdsec
-      - --experimental.plugins.crowdsec.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
-      - --experimental.plugins.crowdsec.version=v1.3.3
       ## fail2ban
       - --experimental.plugins.fail2ban.modulename=github.com/tomMoulard/fail2ban
       - --experimental.plugins.fail2ban.version=v0.8.1
@@ -50,7 +47,7 @@ services:
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls.certresolver=letsencryptresolver"
       - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=dashboard-auth,traefik-real-ip,crowdsec"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth,traefik-real-ip"
       - "traefik.http.routers.dashboard.rule=Host(`tr.${DOMAIN}`)"
       - "traefik.http.routers.dashboard.tls.domains[0].main=${DOMAIN}"
       - "traefik.http.routers.dashboard.tls.domains[0].sans=*.${DOMAIN}"
@@ -59,9 +56,6 @@ services:
       # Plugins
       ## traefik-real-ip
       - "traefik.http.middlewares.traefik-real-ip.plugin.traefik-real-ip.excludednets=1.1.1.1/24"
-      ## crowdsec
-      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.CrowdsecLapiKey=6SUv27REAl74FDtz9DGl49wdeWnwekLd6pSz3UkP"
-      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.Enabled=false"
       ## fail2ban
       - "traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.enabled=true"
       - "traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.bantime=3m"
