@@ -7,10 +7,13 @@ services:
       - ${BACKUP_FOLDER}/homeAssistant:/config
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.homeAssistant.loadbalancer.server.port=80"
+      - "traefik.http.services.homeAssistant.loadbalancer.server.port=8123"
       - "traefik.http.routers.homeAssistant.rule=Host(`ev.${DOMAIN}`)"
       - "traefik.http.routers.homeAssistant.entrypoints=websecure"
+      - "traefik.http.routers.homeAssistant.tls.domains[0].main=${DOMAIN}"
+      - "traefik.http.routers.homeAssistant.tls.domains[0].sans=*.${DOMAIN}"
       - "traefik.http.routers.homeAssistant.tls.certresolver=letsencryptresolver"
+      - "traefik.http.routers.homeAssistant.middlewares=traefik-real-ip,crowdsec,fail2ban"
     environment:
       - PUID=1000
       - PGID=1000

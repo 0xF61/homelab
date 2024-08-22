@@ -1,0 +1,19 @@
+services:
+  glance:
+    image: glanceapp/glance
+    container_name: glance
+    restart: unless-stopped
+    volumes:
+      - ${BACKUP_FOLDER}/glance/glance.yml:/app/glance.yml
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.glance.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.glance.entrypoints=websecure"
+      - "traefik.http.routers.glance.tls=true"
+      - "traefik.http.routers.glance.tls.certresolver=letsencryptresolver"
+      - "traefik.http.routers.glance.tls.domains[0].main=${DOMAIN}"
+      - "traefik.http.routers.glance.tls.domains[0].sans=*.${DOMAIN}"
+      # Get Real IP
+      - "traefik.http.routers.glance.middlewares=traefik-real-ip"

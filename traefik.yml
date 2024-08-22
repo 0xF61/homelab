@@ -12,12 +12,12 @@ services:
       - ${BACKUP_FOLDER}/traefik/letsencrypt:/letsencrypt
       - ${BACKUP_FOLDER}/traefik/logs:/logs
     command:
-      - "--log.level=DEBUG"
+      - "--log.level=INFO"
       - "--log.filePath=/logs/traefik.log"
       # Docker configuration
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=traefik"
+      - "--providers.docker.network=homelab_default"
       # Configure DNS entrypoint
       - "--entrypoints.adguard.address=:53/udp"
       # Configure entrypoint
@@ -27,23 +27,48 @@ services:
       - "--certificatesresolvers.letsencryptresolver.acme.dnschallenge=true"
       - "--certificatesresolvers.letsencryptresolver.acme.dnschallenge.provider=cloudflare"
       - "--certificatesresolvers.letsencryptresolver.acme.email=root@${DOMAIN}"
-      - "--certificatesresolvers.letsencryptresolver.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
       - "--certificatesresolvers.letsencryptresolver.acme.storage=/letsencrypt/${DOMAIN}.json"
+      - "--certificatesresolvers.letsencryptresolver.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
       # Global HTTP -> HTTPS
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       # Enable dashboard
       - "--api.dashboard=true"
       # Plugins
+      ## traefik-real-ip
+      - --experimental.plugins.traefik-real-ip.modulename=github.com/jramsgz/traefik-real-ip
+      - --experimental.plugins.traefik-real-ip.version=v1.0.6
+      ## crowdsec
+      - --experimental.plugins.crowdsec.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+      - --experimental.plugins.crowdsec.version=v1.3.3
+      ## fail2ban
+      - --experimental.plugins.fail2ban.modulename=github.com/tomMoulard/fail2ban
+      - --experimental.plugins.fail2ban.version=v0.8.1
+
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls.certresolver=letsencryptresolver"
       - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
-      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_AUTH}"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth,traefik-real-ip,crowdsec"
+      - "traefik.http.routers.dashboard.rule=Host(`tr.${DOMAIN}`)"
+      - "traefik.http.routers.dashboard.tls.domains[0].main=${DOMAIN}"
+      - "traefik.http.routers.dashboard.tls.domains[0].sans=*.${DOMAIN}"
       - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_AUTH}"
+      # Plugins
+      ## traefik-real-ip
+      - "traefik.http.middlewares.traefik-real-ip.plugin.traefik-real-ip.excludednets=1.1.1.1/24"
+      ## crowdsec
+      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.CrowdsecLapiKey=6SUv27REAl74FDtz9DGl49wdeWnwekLd6pSz3UkP"
+      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.Enabled=false"
+      ## fail2ban
+      - "traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.enabled=true"
+      - "traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.bantime=3m"
+      - "traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.findtime=1m"
+      - "traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.maxretry=60"
+      - "traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.statuscode=400,401,403-499"
+
     environment:
       - TZ=UTC
       - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}

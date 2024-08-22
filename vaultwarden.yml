@@ -10,7 +10,12 @@ services:
       - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
       - "traefik.http.routers.vaultwarden.rule=Host(`vw.${DOMAIN}`)"
       - "traefik.http.routers.vaultwarden.entrypoints=websecure"
+      - "traefik.http.routers.vaultwarden.tls=true"
+      - "traefik.http.routers.vaultwarden.tls.domains[0].main=${DOMAIN}"
+      - "traefik.http.routers.vaultwarden.tls.domains[0].sans=*.${DOMAIN}"
       - "traefik.http.routers.vaultwarden.tls.certresolver=letsencryptresolver"
+      # Get Real IP
+      - "traefik.http.routers.vaultwarden.middlewares=traefik-real-ip,crowdsec,fail2ban"
     environment:
       - ADMIN_TOKEN=${VW_ADMIN_TOKEN}
       - WEBSOCKET_ENABLED=true

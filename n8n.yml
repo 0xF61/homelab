@@ -1,0 +1,32 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    restart: unless-stopped
+    volumes:
+      - ${BACKUP_FOLDER}/n8n:/home/node/.n8n
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.n8n.rule=Host(`n8.${DOMAIN}`)
+      - traefik.http.routers.n8n.tls=true
+      - traefik.http.routers.n8n.entrypoints=web,websecure
+      - traefik.http.routers.n8n.tls.certresolver=letsencryptresolver
+      - traefik.http.middlewares.n8n.headers.SSLRedirect=true
+      - traefik.http.middlewares.n8n.headers.STSSeconds=315360000
+      - traefik.http.middlewares.n8n.headers.browserXSSFilter=true
+      - traefik.http.middlewares.n8n.headers.contentTypeNosniff=true
+      - traefik.http.middlewares.n8n.headers.forceSTSHeader=true
+      - traefik.http.middlewares.n8n.headers.SSLHost=${DOMAIN}
+      - traefik.http.middlewares.n8n.headers.STSIncludeSubdomains=true
+      - traefik.http.middlewares.n8n.headers.STSPreload=true
+      - traefik.http.routers.n8n.tls.domains[0].main=${DOMAIN}
+      - traefik.http.routers.n8n.tls.domains[0].sans=*.${DOMAIN}
+      - traefik.http.routers.n8n.middlewares=n8n@docker
+      # Attach middlewares
+      - traefik.http.routers.n8n.middlewares=traefik-real-ip,crowdsec,fail2ban
+    environment:
+      - N8N_HOST=n8.${DOMAIN}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://n8.${DOMAIN}/

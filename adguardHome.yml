@@ -12,5 +12,9 @@ services:
       - "traefik.http.routers.adguard.rule=Host(`ad.${DOMAIN}`)"
       - "traefik.http.routers.adguard.entrypoints=websecure"
       - "traefik.http.routers.adguard.tls.certresolver=letsencryptresolver"
+      - "traefik.http.routers.adguard.tls.domains[0].main=${DOMAIN}"
+      - "traefik.http.routers.adguard.tls.domains[0].sans=*.${DOMAIN}"
       - "traefik.udp.routers.adguard.service=adguard"
       - "traefik.udp.services.adguard.loadbalancer.server.port=53"
+      # Get Real IP
+      - "traefik.http.routers.adguard.middlewares=traefik-real-ip"
