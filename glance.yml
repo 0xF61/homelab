@@ -16,4 +16,4 @@ services:
       - "traefik.http.routers.glance.tls.domains[0].main=${DOMAIN}"
       - "traefik.http.routers.glance.tls.domains[0].sans=*.${DOMAIN}"
       # Get Real IP
-      - "traefik.http.routers.glance.middlewares=traefik-real-ip"
+      - "traefik.http.routers.glance.middlewares=traefik-real-ip,fail2ban"
