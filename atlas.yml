@@ -3,7 +3,8 @@ services:
     image: jamesits/ripe-atlas:latest
     container_name: "ripeAtlas"
     restart: unless-stopped
+    environment:
+      RXTXRPT: "yes"
     volumes:
-      - ${BACKUP_FOLDER}/atlas-probe-etc:/var/atlas-probe/etc
-    command:
-      - "atlas"
+      - ${BACKUP_FOLDER}/atlas/etc:/var/atlas-probe/etc
+      - ${BACKUP_FOLDER}/atlas/status:/var/atlas-probe/status
