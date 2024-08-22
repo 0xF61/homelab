@@ -1,0 +1,50 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: "traefik"
+    restart: unless-stopped
+    ports:
+      - "80:80" # HTTP
+      - "443:443" # HTTPS
+      - "53:53/udp" # DNS
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${BACKUP_FOLDER}/traefik/letsencrypt:/letsencrypt
+      - ${BACKUP_FOLDER}/traefik/logs:/logs
+    command:
+      - "--log.level=DEBUG"
+      - "--log.filePath=/logs/traefik.log"
+      # Docker configuration
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik"
+      # Configure DNS entrypoint
+      - "--entrypoints.adguard.address=:53/udp"
+      # Configure entrypoint
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # SSL configuration
+      - "--certificatesresolvers.letsencryptresolver.acme.dnschallenge=true"
+      - "--certificatesresolvers.letsencryptresolver.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.letsencryptresolver.acme.email=root@${DOMAIN}"
+      - "--certificatesresolvers.letsencryptresolver.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
+      - "--certificatesresolvers.letsencryptresolver.acme.storage=/letsencrypt/${DOMAIN}.json"
+      # Global HTTP -> HTTPS
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      # Enable dashboard
+      - "--api.dashboard=true"
+      # Plugins
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencryptresolver"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_AUTH}"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+    environment:
+      - TZ=UTC
+      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}

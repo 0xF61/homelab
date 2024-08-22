@@ -1,0 +1,18 @@
+services:
+  homeAssistant:
+    image: lscr.io/linuxserver/homeassistant:latest
+    container_name: homeAssistant
+    restart: unless-stopped
+    volumes:
+      - ${BACKUP_FOLDER}/homeAssistant:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.homeAssistant.loadbalancer.server.port=80"
+      - "traefik.http.routers.homeAssistant.rule=Host(`ev.${DOMAIN}`)"
+      - "traefik.http.routers.homeAssistant.entrypoints=websecure"
+      - "traefik.http.routers.homeAssistant.tls.certresolver=letsencryptresolver"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=auto
+      - PROXY_HOSTNAME=0.0.0.0/0

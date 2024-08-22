@@ -1,0 +1,9 @@
+services:
+  atlas:
+    image: jamesits/ripe-atlas:latest
+    container_name: "ripeAtlas"
+    restart: unless-stopped
+    volumes:
+      - ${BACKUP_FOLDER}/atlas-probe-etc:/var/atlas-probe/etc
+    command:
+      - "atlas"

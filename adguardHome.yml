@@ -1,0 +1,16 @@
+services:
+  adguard:
+    image: adguard/adguardhome
+    container_name: "adguard"
+    restart: unless-stopped
+    volumes:
+      - ${BACKUP_FOLDER}/adguard/work:/opt/adguardhome/work
+      - ${BACKUP_FOLDER}/adguard/conf:/opt/adguardhome/conf
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.adguard.loadbalancer.server.port=3000"
+      - "traefik.http.routers.adguard.rule=Host(`ad.${DOMAIN}`)"
+      - "traefik.http.routers.adguard.entrypoints=websecure"
+      - "traefik.http.routers.adguard.tls.certresolver=letsencryptresolver"
+      - "traefik.udp.routers.adguard.service=adguard"
+      - "traefik.udp.services.adguard.loadbalancer.server.port=53"
