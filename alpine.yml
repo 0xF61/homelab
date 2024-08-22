@@ -1,0 +1,18 @@
+services:
+  alpine:
+    image: alpine:latest
+    container_name: "pc"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.pc.loadbalancer.server.port=80"
+      - "traefik.http.routers.pc.rule=Host(`pc.${DOMAIN}`)"
+      - "traefik.http.routers.pc.entrypoints=websecure"
+      - "traefik.http.routers.pc.tls=true"
+      - "traefik.http.routers.pc.tls.domains[0].main=${DOMAIN}"
+      - "traefik.http.routers.pc.tls.domains[0].sans=*.${DOMAIN}"
+      - "traefik.http.routers.pc.tls.certresolver=letsencryptresolver"
+      # Get Real IP
+      - "traefik.http.routers.pc.middlewares=traefik-real-ip,fail2ban"
