@@ -17,4 +17,4 @@ services:
       - "traefik.udp.routers.adguard.service=adguard"
       - "traefik.udp.services.adguard.loadbalancer.server.port=53"
       # Get Real IP
-      - "traefik.http.routers.adguard.middlewares=traefik-real-ip"
+      - "traefik.http.routers.adguard.middlewares=traefik-real-ip,dashboard-auth,fail2ban"
